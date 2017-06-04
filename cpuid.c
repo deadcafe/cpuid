@@ -27,8 +27,8 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <stdint.h>
 #include <stddef.h>
+#include <string.h>
 
 #include "cpuid.h"
 
@@ -39,6 +39,14 @@ enum cpuid_reg_e {
         CPUID_REG_EDX,
 
         CPUID_REG_NB,
+};
+
+struct cpuid_attr {
+        const char *name;
+        unsigned bit;
+        enum cpuid_reg_e reg;
+        unsigned leaf;
+        unsigned sub_leaf;
 };
 
 struct cpuid_s {
@@ -55,6 +63,724 @@ struct cpuid_s {
 #define CPUID_BASIC             0x0U
 #define CPUID_EXT               0x80000000U
 #define CPUID_INVALID		(unsigned) (-1)
+
+
+/*
+ * cpuids 
+ */
+static const struct cpuid_attr cpuid_attr[] = {
+        {
+                .name     = "fpu",
+                .bit      = 0,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "vme",
+                .bit      = 1,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "de",
+                .bit      = 2,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pse",
+                .bit      = 3,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "tsc",
+                .bit      = 4,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "msr",
+                .bit      = 5,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pae",
+                .bit      = 6,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "mce",
+                .bit      = 7,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "cx8",
+                .bit      = 8,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "apic",
+                .bit      = 9,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sep",
+                .bit      = 11,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "mtrr",
+                .bit      = 12,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pge",
+                .bit      = 13,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "mca",
+                .bit      = 14,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "cmov",
+                .bit      = 15,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pat",
+                .bit      = 16,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pse-36",
+                .bit      = 17,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "psn",
+                .bit      = 18,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "clfsh",
+                .bit      = 19,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ds",
+                .bit      = 21,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "acpi",
+                .bit      = 22,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "mmx",
+                .bit      = 23,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "fxsr",
+                .bit      = 24,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sse",
+                .bit      = 25,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sse2",
+                .bit      = 26,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ss",
+                .bit      = 27,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "htt",
+                .bit      = 28,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "tm",
+                .bit      = 29,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ia64",
+                .bit      = 30,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pbe",
+                .bit      = 31,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+
+        {
+                .name     = "sse3",
+                .bit      = 0,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pclmulqdq",
+                .bit      = 1,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "dtes64",
+                .bit      = 2,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "monitor",
+                .bit      = 3,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ds-cpl",
+                .bit      = 4,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "vmx",
+                .bit      = 5,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "smx",
+                .bit      = 6,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "est",
+                .bit      = 7,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "tm2",
+                .bit      = 8,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ssse3",
+                .bit      = 9,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "cnxt-id",
+                .bit      = 10,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sdbg",
+                .bit      = 11,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "fma",
+                .bit      = 12,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "cx16",
+                .bit      = 13,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "xtpr",
+                .bit      = 14,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pdcm",
+                .bit      = 15,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pcid",
+                .bit      = 17,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "dca",
+                .bit      = 18,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sse4.1",
+                .bit      = 19,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sse4.2",
+                .bit      = 20,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "x2apic",
+                .bit      = 21,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "movbe",
+                .bit      = 22,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "popcnt",
+                .bit      = 23,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "tsc-deadline",
+                .bit      = 24,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "aes",
+                .bit      = 25,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "xsave",
+                .bit      = 26,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "osxsave",
+                .bit      = 27,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx",
+                .bit      = 28,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "f16c",
+                .bit      = 29,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "rdrnd",
+                .bit      = 30,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "hypervisor",
+                .bit      = 31,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x01,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+
+        {
+                .name     = "fsgsbase",
+                .bit      = 0,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sgx",
+                .bit      = 2,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "bmi1",
+                .bit      = 3,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "hle",
+                .bit      = 4,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx2",
+                .bit      = 5,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "smep",
+                .bit      = 7,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "bmi2",
+                .bit      = 8,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "erms",
+                .bit      = 9,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "invpcid",
+                .bit      = 10,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "rtm",
+                .bit      = 11,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pqm",
+                .bit      = 12,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "mpx",
+                .bit      = 14,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pq",
+                .bit      = 15,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512f",
+                .bit      = 16,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512dq",
+                .bit      = 17,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "rdseed",
+                .bit      = 18,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "adx",
+                .bit      = 19,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "smap",
+                .bit      = 20,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512ifma",
+                .bit      = 21,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pcommit",
+                .bit      = 22,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "clfushopt",
+                .bit      = 23,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "clwb",
+                .bit      = 24,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "intel_pt",
+                .bit      = 25,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512pf",
+                .bit      = 26,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512er",
+                .bit      = 27,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512cd",
+                .bit      = 28,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sha",
+                .bit      = 29,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512bw",
+                .bit      = 30,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512vl",
+                .bit      = 31,
+                .reg      = CPUID_REG_EBX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+
+
+        {
+                .name     = "prefetchwt1",
+                .bit      = 0,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512vbmi",
+                .bit      = 1,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "umip",
+                .bit      = 2,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "pku",
+                .bit      = 3,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "ospke",
+                .bit      = 4,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512vpopvntdq",
+                .bit      = 14,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "rdpid",
+                .bit      = 22,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "sgx_lc",
+                .bit      = 30,
+                .reg      = CPUID_REG_ECX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+
+
+        {
+                .name     = "avx512_4vnniw",
+                .bit      = 2,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+        {
+                .name     = "avx512_4fmaps",
+                .bit      = 3,
+                .reg      = CPUID_REG_EDX,
+                .leaf     = CPUID_BASIC | 0x07,
+                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
+        },
+
+
+        {/* terminator */
+                .name     = NULL,
+        },
+};
 
 static inline int
 cpuid_exec(struct cpuid_s *cpuid,
@@ -114,104 +840,32 @@ cpuid_reg_read(struct cpuid_s *cpuid,
         return ret;
 }
 
-struct cpuid_list {
-        const char *name;
-        unsigned flag;
-        unsigned leaf;
-        unsigned sub_leaf;
-        enum cpuid_reg_e reg;
-        unsigned mask;
-};
-
-static const struct cpuid_list cpuid_list[CPUID_NB] = {
-        [CPUID_BIT_AESNI] = { /* CPUID.01H:ECX.AESNI[bit 25] */
-                .name     = "AESNI",
-                .flag     = CPUID_FLAGS_AESNI,
-                .leaf     = CPUID_BASIC | 0x01,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 25),
-        },
-        [CPUID_BIT_PCLMULQDQ] = { /* CPUID.01H:ECX.PCLMULQDQ[bit 1] */
-                .name     = "PCLMULQDQ",
-                .flag     = CPUID_FLAGS_PCLMULQDQ,
-                .leaf     = CPUID_BASIC | 0x01,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 1),
-        },
-        [CPUID_BIT_SSE] = { /* CPUID.01H:ECX.SSE[bit 0] */
-                .name     = "SSE",
-                .flag     = CPUID_FLAGS_SSE,
-                .leaf     = CPUID_BASIC | 0x01,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 0),
-        },
-        [CPUID_BIT_AVX] = { /* CPUID.01H:ECX.AVX[bit 28] */
-                .name     = "AVX",
-                .flag     = CPUID_FLAGS_AVX,
-                .leaf     = CPUID_BASIC | 0x01,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 28),
-        },
-        [CPUID_BIT_AVX2] = { /* CPUID.07H:EBX.AVX2[bit 5] */
-                .name     = "AVX2",
-                .flag     = CPUID_FLAGS_AVX2,
-                .leaf     = CPUID_BASIC | 0x07,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_EBX,
-                .mask     = (1u << 5),
-        },
-        [CPUID_BIT_AVX512F] = { /* CPUID.07H:ECX.AVX512F[bit 16] */
-                .name     = "AVX512F",
-                .flag     = CPUID_FLAGS_AVX512F,
-                .leaf     = CPUID_BASIC | 0x07,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 16),
-        },
-        [CPUID_BIT_SHANI] = { /* CPUID.07H:ECX.SHANI[bit 29] */
-                .name     = "SHANI",
-                .flag     = CPUID_FLAGS_SHANI,
-                .leaf     = CPUID_BASIC | 0x07,
-                .sub_leaf = CPUID_SUB_LEAF_UNSPEC,
-                .reg      = CPUID_REG_ECX,
-                .mask     = (1u << 29),
-        },
-};
-
 /*
- *
+ * max number of names: 32 names
  */
 unsigned
-cpuid_flags_read(unsigned flags)
+cpuid_flags_read(const char **names)
 {
-        unsigned ret = 0;
+        unsigned bits = 0;
         struct cpuid_s cpuid = {
                 .leaf     = CPUID_INVALID,
                 .sub_leaf = CPUID_INVALID,
         };
 
-        for (unsigned i = 0; i < ARRAYOF(cpuid_list); i++) {
-                if (cpuid_list[i].flag & flags) {
+        for (unsigned n = 0; names[n]; n++) {
+                for (unsigned i = 0; cpuid_attr[i].name; i++) {
                         unsigned reg;
+                        
+                        if (strcmp(names[n], cpuid_attr[i].name))
+                                continue;
+
                         reg = cpuid_reg_read(&cpuid,
-                                             cpuid_list[i].leaf,
-                                             cpuid_list[i].sub_leaf,
-                                             cpuid_list[i].reg);
-                        if (reg & cpuid_list[i].mask)
-                                ret |= cpuid_list[i].flag;
+                                             cpuid_attr[i].leaf,
+                                             cpuid_attr[i].sub_leaf,
+                                             cpuid_attr[i].reg);
+                        if (reg & (1u << cpuid_attr[i].bit))
+                                bits |= (1u << n);
                 }
         }
-        return ret;
-}
-
-const char *
-cpuid_name(enum cpuid_bit_e id)
-{
-        if (id < 0 || id >= CPUID_NB)
-                return NULL;
-        return cpuid_list[id].name;
+        return bits;
 }

@@ -31,17 +31,32 @@
 
 #include "cpuid.h"
 
+
+const char *cpuid_names[] = {
+        "sse3",
+        "ssse3",
+        "sse4.1",
+        "sse4.2",
+        "avx",
+        "avx2",
+        "avx512f",
+        "aes",
+        "pclmulqdq",
+        "sha",
+
+        NULL,	/* terminator */
+};
+
 int
 main(void)
 {
-        unsigned flags = cpuid_flags_read((unsigned) -1);
+        unsigned flags = cpuid_flags_read(cpuid_names);
 
-        for (enum cpuid_bit_e cpuid = CPUID_BIT_AESNI;
-             flags && cpuid < CPUID_NB;
-             flags >>= 1, cpuid++) {
-
-                fprintf(stderr, "%s\n", cpuid_name(cpuid));
-
+        for (unsigned i = 0; cpuid_names[i]; i++) {
+                if (flags & (1u << i))
+                        fprintf(stderr, "%s enabled\n", cpuid_names[i]);
+                else
+                        fprintf(stderr, "%s disabled\n", cpuid_names[i]);
         }
 
         return 0;
